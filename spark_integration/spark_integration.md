@@ -54,11 +54,11 @@ Process data pipeline workflow via Analytic Workflow Engine
 Believe it or not, developing the build scripts is the most time consuming and difficult part of the Spark integration. This is largely due to SBT .ivy dependency resolving. SBT has to resolve the jar files each time the build scripts changes.
  
 The difficulty also comes from the following complexities
-·      Both the Web UI and Agent components are servlet containers (running Jetty), so directly including the Spark Assembly jar will cause conflicts as the Spark Assembly also contains Jetty to support the Spark UI.
-·      We use xsbt-web-plugin to support development mode, where we can start and stop web containers without requiring a distributed agent deployment. This means if we have Jetty and Spark on the same container, things are not going to work well.
-·      Our platform supports both Spark and non-Spark development, such MapReduce, Pig, Hive etc. The dependency for these Hadoop jars may require different versions of third party jars to Spark.
-·      At runtime, the order of the jar dependencies may cause the class loader to load a different version of the class file to the one you expected.
-·      org.spark-project repackages Apache artifacts (such Hive and Akka etc) to reduce unwanted dependencies, but the some of the class with the same class name behave differently than the original Apache class (such as hive-exec).
+* Both the Web UI and Agent components are servlet containers (running Jetty), so directly including the Spark Assembly jar will cause conflicts as the Spark Assembly also contains Jetty to support the Spark UI.
+* We use xsbt-web-plugin to support development mode, where we can start and stop web containers without requiring a distributed agent deployment. This means if we have Jetty and Spark on the same container, things are not going to work well.
+* Our platform supports both Spark and non-Spark development, such MapReduce, Pig, Hive etc. The dependency for these Hadoop jars may require different versions of third party jars to Spark.
+* At runtime, the order of the jar dependencies may cause the class loader to load a different version of the class file to the one you expected.
+* org.spark-project repackages Apache artifacts (such Hive and Akka etc) to reduce unwanted dependencies, but the some of the class with the same class name behave differently than the original Apache class (such as hive-exec).
  
  
 Each time we upgrade to a new Spark or Hadoop version, it is a struggle to verify that the changes will not affect other functionalities unexpectedly due to changes in the dependencies.
@@ -66,16 +66,13 @@ Each time we upgrade to a new Spark or Hadoop version, it is a struggle to verif
 Here is what we have developed:
  
 Only use Spark-assembly for test
-Selectively include the needed Spark module jars. For example, we only include the core, mllib, yarn, network-shuffle, hive and core modules, other unrelated modules are not used as dependency. 
-Exclude the servlet jars from Spark
-Add back the needed 3rd party servlet related to the WebUI module only.
-Carefully examine the order of 3rd party jar dependency
- 
+
+Selectively include the needed Spark module jars. For example, we only include the core, mllib, yarn, network-shuffle, hive and core modules, other unrelated modules are not used as dependency. Exclude the servlet jars from Spark. Add back the needed 3rd party servlet related to the WebUI module only.Carefully examine the order of 3rd party jar dependency
  
 Currently, our integration is only limited to Spark Yarn-Cluster mode, so we included the following artifacts from spark-jar. 
  
-We are using SBT to build. And The Build script is defined in Build.scala
- 
+We are using SBT to build, the Build script is defined in Build.scala
+``` 
  
 val scalaMajarVersion=”2.10”
  
@@ -98,11 +95,12 @@ def runtimeSparkJars (sparkVersion:String, hadoopVersion: String) : Seq[ModuleID
 	"org.apache.spark" % s"spark-network-shuffle_$scalaMajorVersion" % version
   )
 }
- 
+```
+
 As you can see the spark-assembly is only used for tests (setup, clean, function and unit tests); while others components are used for compilation (mostly).  Only a subset of the spark components is used here.
  
 There are other dependencies needed for Hive to run in Spark, such as data nucleus JDO dependencies. You will need to specify them as well
- 
+```
 lazy val datanucleusJars  = {
   Seq(
 	"org.datanucleus" % "datanucleus-accessplatform-jdo-rdbms" % "3.2.9",
@@ -112,7 +110,7 @@ lazy val datanucleusJars  = {
 	"org.datanucleus" % "datanucleus-rdbms" % "3.2.9"
   )
 }
- 
+``` 
 We will discuss more on jar dependencies at Runtime during spark job submission.
  
  
