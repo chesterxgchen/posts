@@ -117,7 +117,7 @@ We will discuss more on jar dependencies at Runtime during spark job submission.
  
  
  
-Spark Deployment modes
+## Spark Deployment modes
  
 Depending the resource manager used or Spark installation, there are several Spark deployment modes: mesos, standalone, yarn-client and yarn-cluster mode.
  
@@ -149,7 +149,7 @@ This is not ideal; we would like to monitor the job progress, logs, debugging st
 
 
  
-Runtime Jar file dependencies
+## Runtime Jar file dependencies
 
 Before we submit Spark, we need to talk about the runtime jar dependencies. As we discussed earlier, Spark may need additional dependencies jars files for the Spark job. This could be 3rd party dependencies jar by Spark or by your applications. You could use let Spark upload for you by specify “--files” in arguments. The “—files” option will upload the files and distributed the file to all the nodes in the cluster. One thing to know that the jar file uploaded with “--files” option is persisted in HDFS under Yarn Job Application Id directory, therefore cannot be reused for another job.
  
@@ -158,7 +158,7 @@ To avoid repeated upload the same jar, we upload the jar files ourselves; and on
 If the cluster already has the spark-assembly.jar installed, we simply use it if it is with the match Spark version. Otherwise we upload the Spark-assembly.jar file. This also allows us to experiments with different Spark versions.  Once the jar is loaded, the HDFS file path can be used as arguments for the Spark job.
 
 
-Submit Spark Job
+## Submit Spark Job
  
 The standard way to submit a Spark job is to use spark-submit shell.  Unfortunately, the spark-submit (which internally calls SparkSubmit.scala) is mainly designed for shell invocation.
  
@@ -206,7 +206,7 @@ val sparkClient = SparkYarnClient(args, hadoopConf, sparkConf)
 sparkClient.run()
  
  
-Add Yarn Application Listener
+## Add Yarn Application Listener
  
 The first change we made is to add Yarn Application Listener to Spark Yarn Client, so that when Spark jobs starts, we can get the yarn callback, we can monitor the yarn progress.  The call back also provides the Application Id, which can then be used to kill the application.
  
@@ -221,7 +221,7 @@ private def notifyAppStart(report: ApplicationReport) {
   listeners.par.foreach(_.onApplicationStart(appInfo.startTime, appInfo))
 }
  
-Add KillApplication() method to Client
+## Add KillApplication() method to Client
  
 Many times we like to stop the yarn application before it finishes (debugging, experimenting and many other reasons). The Spark Client has the stop() method, which simply calls Client.stop(). This doesn’t seem to stop the yarn application. We need to expose YarnClient’s killApplication() method.
  
@@ -234,7 +234,7 @@ def killApplication(appId: ApplicationId ) = {
 
  
 
-Notify the yarn application state changes
+## Notify the yarn application state changes
  
 The Spark has runAndForget configuration to control the run() method.  If the runAndForget = true, the Client does not monitor the application state. It is asynchronous call. Once the job is submitted, the client can do other tasks. By default, the runAndForget = false, so the Client.run() is a blocking call, the method returns when job is completed. During the run, the monitoring method periodically poll yarn application report, and log the report if logging is enabled.
  
@@ -305,7 +305,7 @@ This allows the application to display Yarn Progress Bar before Spark Job is sta
   
  
  
-Setup communication Channel
+## Setup communication Channel
  
 We also need a way for the Spark job to communicate back to the application on the logging, exception, as well as Spark progress.  
 
@@ -401,7 +401,7 @@ With this infrastructure, we can do a lot of interesting communications from clu
  
 Let’s take a closer look at the type of messages we sending from cluster to client:
  
-Message Types
+## Message Types
 
 
 trait LogMessage {
@@ -451,7 +451,7 @@ The BroadcastMessage is used for send messages for all the Machine Learning List
  
 
  
-Spark Client Listener
+## Spark Client Listener
  
 Spark Client Listener resides on the client side of the application (not in cluster) and it is used for receiving messages from the Spark job. Once the message is received, it redirect to different destination based on the type of the messages:
  
@@ -461,7 +461,7 @@ Spark Client Listener resides on the client side of the application (not in clus
  
 
  
-Displaying Spark Job Progress in Real-Time 
+## Displaying Spark Job Progress in Real-Time 
  
 With above infrastructure, now we are ready to display real-time Spark job progress and other detailed information to UI.  What we need to do is first get the Spark job progress via JobProgressListener and then relay the progress via our task communication channel to front-end.  Here we define a Spark JobProgressRelayListener extends JobProgressListener to do this work.
  
@@ -514,7 +514,7 @@ Now with this infrastructure in place, we can display in real-time, the Spark pr
 
  
  
- Summary
+## Summary
  
 I have described in great detail about the alpine Spark Integration approach. Hope this is helpful for you work as well.
  
