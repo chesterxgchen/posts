@@ -6,7 +6,7 @@ Alpine Data
 Tuesday, November 3, 2015
  
  
-In this blog, I will discuss how to integrate Apache Spark in a web-based analytics system. Part of the content is discussed in my recent talk at 2015 Big Data Scala Conference. 
+In this blog, I will discuss how to integrate Apache Spark in a web-based analytics system. Part of the content is discussed in my recent talk at [2015 Big Data Scala Conference](https://www.youtube.com/watch?v=4pTmhmcLWRg). 
 You can also check out my notes on Spark 1.5 Integration, where 
 discussed issues and solutions we observed while upgrading spark from Spark 1.3.1 to Spark 1.5.1.
  
