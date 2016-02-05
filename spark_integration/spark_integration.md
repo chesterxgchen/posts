@@ -119,14 +119,14 @@ We will discuss more on jar dependencies at Runtime during spark job submission.
  
 Depending the resource manager used or Spark installation, there are several Spark deployment modes: mesos, standalone, yarn-client and yarn-cluster mode.
  
-Standalone mode: Spark is installed on all the nodes in the cluster. HA master is through Zookeeper election. Must dedicate whole cluster to Spark. If one company is intend to mix use Map Reduce and Spark, then this is not suitable.  More Spark users are using Spark standalone mode now.
-Mesos mode: Spark was originally developed to demo Mesos. Mesos can manage many different resources including Yarn as well.  Mesos can manage both JVM and non-JVM (like MPI). It has great support for micro-services such as Docker and Marathon.
-Yarn Mode: Leverage Yarn Resource Manager. This is resource manager supported by major Hadoop distribution vendors. Therefore used by all of clients.
+* Standalone mode: Spark is installed on all the nodes in the cluster. HA master is through Zookeeper election. Must dedicate whole cluster to Spark. If one company is intend to mix use Map Reduce and Spark, then this is not suitable.  More Spark users are using Spark standalone mode now.
+* Mesos mode: Spark was originally developed to demo Mesos. Mesos can manage many different resources including Yarn as well.  Mesos can manage both JVM and non-JVM (like MPI). It has great support for micro-services such as Docker and Marathon.
+* Yarn Mode: Leverage Yarn Resource Manager. This is resource manager supported by major Hadoop distribution vendors. Therefore used by all of clients.
  
 In the following discussion, we are only interests in Yarn deployment mode as that is the configuration all of our customers have. For Spark, there are yarn-client and yarn-cluster modes.
  
-·      Yarn-client mode. The Spark job is run in yarn cluster, but Spark driver in on the client side.
-·      Yarn-cluster mode. Both driver as well the Spark job are run and managed by yarn resource manager.
+* Yarn-client mode. The Spark job is run in yarn cluster, but Spark driver in on the client side.
+* Yarn-cluster mode. Both driver as well the Spark job are run and managed by yarn resource manager.
  
 In Yarn mode, each yarn container is self-contained and independent from other containers. Yarn Resource Manager manages resource allocation. You can find out more details here. In each container, one can run any kind of jobs (map/reduce, pig, hive, or Spark).  This allows the cluster to mix Spark job and map reduce jobs.  One benefit with Yarn deployment is that clients do not need dedicated Spark Cluster. Instead, the existing Hadoop Cluster setup for Pig, Hive or Map Reduce Job can also be leveraged for Spark job.
  
@@ -139,6 +139,7 @@ Unlike standalone Spark mode and yarn-client mode, where user can interactive co
 This is not ideal; we would like to monitor the job progress, logs, debugging statements, getting exceptions, and stop the jobs if needed.  None of these are available for Spark yarn-cluster mode.  Therefore we have to do something about it.
 
 
+![Image of Yarn Mode](https://github.com/chesterxgchen/posts/blob/master/spark_integration/images/spark-yarn-mode.png)
 
 
 
