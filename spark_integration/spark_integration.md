@@ -128,7 +128,7 @@ In the following discussion, we are only interests in Yarn deployment mode as th
 * Yarn-client mode. The Spark job is run in yarn cluster, but Spark driver in on the client side.
 * Yarn-cluster mode. Both driver as well the Spark job are run and managed by yarn resource manager.
  
-In Yarn mode, each yarn container is self-contained and independent from other containers. Yarn Resource Manager manages resource allocation. You can find out more details here. In each container, one can run any kind of jobs (map/reduce, pig, hive, or Spark).  This allows the cluster to mix Spark job and map reduce jobs.  One benefit with Yarn deployment is that clients do not need dedicated Spark Cluster. Instead, the existing Hadoop Cluster setup for Pig, Hive or Map Reduce Job can also be leveraged for Spark job.
+In Yarn mode, each yarn container is self-contained and independent from other containers. Yarn Resource Manager manages resource allocation. You can find out more details [here](http://hortonworks.com/blog/apache-hadoop-yarn-background-and-an-overview/). In each container, one can run any kind of jobs (map/reduce, pig, hive, or Spark).  This allows the cluster to mix Spark job and map reduce jobs.  One benefit with Yarn deployment is that clients do not need dedicated Spark Cluster. Instead, the existing Hadoop Cluster setup for Pig, Hive or Map Reduce Job can also be leveraged for Spark job.
  
 As our analytic application is shared by many uses, Yarn-client mode does not work for us as many users will have to share the same JVM hence the same SparkContext.  Spark Requires that one JVM can only have one SparkContext. If the Spark driver crashes due to one of user’s Spark job (ex. launch a program that collect a lot of data on driver side), then it will bring down the JVM and affects other user jobs as well.
  
@@ -521,6 +521,6 @@ We are continue to working on additional infrastructure related to Spark Integra
   The task channel actor can be created to take command to change the behavior of the spark job. For example, One can stop the macine   learning training iteration instead of waiting for the last iteration if user determine that the convergence is achieved.
  ( check out my presentations at 2016 IEEE International Conference on Big Data Analytics and other conferences )
 
-* Automatically estimate the Spark configuration parameters based on the yarn containers memory, vCores, data size
+* Automatically estimate the Spark configuration parameters based on the yarn containers memory, vCores,  data size and machine learning algorithm. 
  
 
