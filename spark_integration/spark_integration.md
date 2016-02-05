@@ -508,6 +508,8 @@ class JobProgressRelayListener(appCtx: ApplicationContext)
 
 
 Now with this infrastructure in place, we can display in real-time, the Spark progress. 
+
+![image of realtime console](https://github.com/chesterxgchen/posts/blob/master/spark_integration/images/realtime-console.png)
  
 
 
