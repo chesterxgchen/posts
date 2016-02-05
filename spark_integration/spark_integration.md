@@ -300,7 +300,7 @@ Let’s look at the ```onApplicationStart()``` Callback:
  
 This allows the application to display Yarn Progress Bar before Spark Job is started.
 
- 
+![image of yarnstart] (https://github.com/chesterxgchen/posts/blob/master/spark_integration/images/realtime_console_yarn_start.png) 
   
  
 ## Setup communication Channel
