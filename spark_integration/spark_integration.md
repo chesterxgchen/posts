@@ -65,9 +65,12 @@ Each time we upgrade to a new Spark or Hadoop version, it is a struggle to verif
  
 Here is what we have developed:
  
-Only use Spark-assembly for test
+* Only use Spark-assembly for test
 
-Selectively include the needed Spark module jars. For example, we only include the core, mllib, yarn, network-shuffle, hive and core modules, other unrelated modules are not used as dependency. Exclude the servlet jars from Spark. Add back the needed 3rd party servlet related to the WebUI module only.Carefully examine the order of 3rd party jar dependency
+* Selectively include the needed Spark module jars. For example, we only include the core, mllib, yarn, network-shuffle, hive and core modules, other unrelated modules are not used as dependency.
+* Exclude the servlet jars from Spark. 
+* Add back the needed 3rd party servlet related to the WebUI module only.
+* Carefully examine the order of 3rd party jar dependency
  
 Currently, our integration is only limited to Spark Yarn-Cluster mode, so we included the following artifacts from spark-jar. 
  
