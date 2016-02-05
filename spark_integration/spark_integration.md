@@ -304,6 +304,7 @@ This allows the application to display Yarn Progress Bar before Spark Job is sta
   
  
 ## Setup communication Channel
+![image of communication chanel] (https://github.com/chesterxgchen/posts/blob/master/spark_integration/images/communication.png)
  
 We also need a way for the Spark job to communicate back to the application on the logging, exception, as well as Spark progress.  
 
@@ -463,6 +464,7 @@ Spark Client Listener resides on the client side of the application (not in clus
 ## Displaying Spark Job Progress in Real-Time 
  
 With above infrastructure, now we are ready to display real-time Spark job progress and other detailed information to UI.  What we need to do is first get the Spark job progress via JobProgressListener and then relay the progress via our task communication channel to front-end.  Here we define a Spark JobProgressRelayListener extends JobProgressListener to do this work.
+![image of relaylistener](https://github.com/chesterxgchen/posts/blob/master/spark_integration/images/spark-relay-listener.png)
 
 ``` 
 class JobProgressRelayListener(appCtx: ApplicationContext)
