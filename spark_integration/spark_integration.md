@@ -165,8 +165,8 @@ Spark recently introduced the SparkLauncher with a Builder Pattern and allows on
  
 Our Approach:
  
-·      Since we only submit theSpark job in Yarn-Cluster Mode, we will directly call Spark Yarn Client instead of going SparkSubmit or SparkLauncher, which still end up calling Spark Yarn Client.
-·      By calling Spark Yarn Client directly, we can control other interaction with Yarn. The Spark launcher will only return the Process object for the “spark-submit” command. You can’t not kill the spark job or get progress from it.
+*  Since we only submit theSpark job in Yarn-Cluster Mode, we will directly call Spark Yarn Client instead of going SparkSubmit or SparkLauncher, which still end up calling Spark Yarn Client.
+* By calling Spark Yarn Client directly, we can control other interaction with Yarn. The Spark launcher will only return the Process object for the “spark-submit” command. You can’t not kill the spark job or get progress from it.
  
 To that, first we create a new SparkYarnClient class as a customized Spark Yarn Client. It overwrites some of the behaviors defined in the Client.scala class in yarn module.
 
@@ -174,12 +174,12 @@ The Spark Client.scala is a private [spark] class and not intended to overwrite.
  
  
 Since we have the SparkYarnClient reference, we can now
-·      Kill the yarn application (Spark job) when "stop" command is called. The client.stop doesn't stop it immediately and Client.scala doesn't provide such functionality.
-·      Add YarnApplicationListener, which can be used to monitoring the Yarn Lifecycle.
-·      By default, the spark yarn Client.run() is a blocking call. It periodically pull yarn report to monitor the progress. With YarnSparkClient, we can call back to the listeners to notify the state change in Yarn. The notification can be done via overwrite the monitorApplication() method
+*  Kill the yarn application (Spark job) when "stop" command is called. The client.stop doesn't stop it immediately and Client.scala doesn't provide such functionality.
+* Add YarnApplicationListener, which can be used to monitoring the Yarn Lifecycle.
+* By default, the spark yarn ```Client.run()``` is a blocking call. It periodically pull yarn report to monitor the progress. With YarnSparkClient, we can call back to the listeners to notify the state change in Yarn. The notification can be done via overwrite the ```monitorApplication()``` method
  
 Here SparkYarnClient is defined as following
-
+```
 object SparkYarnClient {
 
   def apply(args: Array[String], hadoopConf: Configuration, sparkConf: SparkConf) = {
@@ -190,25 +190,26 @@ object SparkYarnClient {
   //other methods
 }
  
-sealed
-class SparkYarnClient(override val args: ClientArguments,
-          	                         override val hadoopConf: Configuration,
-             	                      override val sparkConf: SparkConf) extends Client(args,hadoopConf,sparkConf) {
+sealed class SparkYarnClient(override val args: ClientArguments,
+          	             override val hadoopConf: Configuration,
+             	             override val sparkConf: SparkConf) extends Client(args,hadoopConf,sparkConf) {
  
    //rest of code
 }
- 
+``` 
 One can invoke SparkYarnClient via
- 
+
+``` 
 val sparkClient = SparkYarnClient(args, hadoopConf, sparkConf)
  
 sparkClient.run()
- 
+``` 
  
 ## Add Yarn Application Listener
  
 The first change we made is to add Yarn Application Listener to Spark Yarn Client, so that when Spark jobs starts, we can get the yarn callback, we can monitor the yarn progress.  The call back also provides the Application Id, which can then be used to kill the application.
- 
+
+``` 
 private val listeners = ListBuffer[YarnApplicationListener]()
 
 def addApplicationListener(listener: YarnApplicationListener) {
@@ -219,32 +220,33 @@ private def notifyAppStart(report: ApplicationReport) {
   val appInfo: YarnAppInfo = getApplicationInfo(report)
   listeners.par.foreach(_.onApplicationStart(appInfo.startTime, appInfo))
 }
+
+```
  
 ## Add KillApplication() method to Client
  
-Many times we like to stop the yarn application before it finishes (debugging, experimenting and many other reasons). The Spark Client has the stop() method, which simply calls Client.stop(). This doesn’t seem to stop the yarn application. We need to expose YarnClient’s killApplication() method.
+Many times we like to stop the yarn application before it finishes (debugging, experimenting and many other reasons). The Spark Client has the stop() method, which simply calls ```Client.stop()```. This doesn’t seem to stop the yarn application. We need to expose YarnClient’s ```killApplication()``` method.
  
 Since Spark Client’s yarnClient field is private, we have to use reflection to access it.
- 
+``` 
 def killApplication(appId: ApplicationId ) = {
    //use reflection to call yarnClient.killApplication(appId)
 }
-
+```
 
  
 
 ## Notify the yarn application state changes
  
-The Spark has runAndForget configuration to control the run() method.  If the runAndForget = true, the Client does not monitor the application state. It is asynchronous call. Once the job is submitted, the client can do other tasks. By default, the runAndForget = false, so the Client.run() is a blocking call, the method returns when job is completed. During the run, the monitoring method periodically poll yarn application report, and log the report if logging is enabled.
+The Spark has runAndForget configuration to control the run() method.  If the runAndForget = true, the Client does not monitor the application state. It is asynchronous call. Once the job is submitted, the client can do other tasks. By default, the runAndForget = false, so the ```Client.run()``` is a blocking call, the method returns when job is completed. During the run, the monitoring method periodically poll yarn application report, and log the report if logging is enabled.
  
-For the case runAndForget = false, we like to notify yarn application listeners every time the state is reported. To do so, we overwrite the Client.monitor() method to allows us to inject the notify methods.
+For the case runAndForget = false, we like to notify yarn application listeners every time the state is reported. To do so, we overwrite the ```Client.monitor()``` method to allows us to inject the notify methods.
 
+```
 
-
- 
 override
 def monitorApplication(appId: ApplicationId,
-                   	returnOnRunning: Boolean = false,
+                       returnOnRunning: Boolean = false,
                        logApplicationReport: Boolean = true): (YarnApplicationState, FinalApplicationStatus) = {
 
   val (report0, state0, status0)  = getApplicationReportWithState(appId)
@@ -268,9 +270,11 @@ def monitorApplication(appId: ApplicationId,
   throw new SparkException("While loop is depleted! This should never happen...")
 }
  
+```
  
 Here are the different stages of life cycle notifications:
 
+```
 trait YarnApplicationListener {
   def onApplicationInit(time:Long, appId: ApplicationId)
   def onApplicationStart(time:Long, info: YarnAppInfo)
@@ -291,16 +295,18 @@ override def onApplicationStart(time: Long, info: YarnAppInfo) {
   val taskMessage = StartTaskMessage(info.appId.toString, "yarn app started", time) //message is not used.
   MessagingUtil.notifyJobStartWithTrackUrl(processListeners, nodeName, taskMessage, modifiedUrl)
 
- 
 }
+
+```
  
-Let’s look at the onApplicationStart() Callback:
-·  We updated the SPARK_YARA_APP_ID, with the info.appId, this is the yarn application Id just created. With this Application Id, we can use it to kill Application
-·  The job state is updated with the tracking URL
-·  Further the StartTaskMessage() is send to the front-end via a MessagingUtil. 
+Let’s look at the ```onApplicationStart()``` Callback:
+* We updated the SPARK_YARA_APP_ID, with the info.appId, this is the yarn application Id just created. With this Application Id, we can use it to kill Application
+* The job state is updated with the tracking URL
+* Further the StartTaskMessage() is send to the front-end via a MessagingUtil. 
  
 This allows the application to display Yarn Progress Bar before Spark Job is started.
 
+ 
   
  
  
