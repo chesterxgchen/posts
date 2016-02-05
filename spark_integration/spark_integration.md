@@ -483,9 +483,9 @@ class JobProgressRelayListener(appCtx: ApplicationContext)
   private val showStageProgress: Boolean = appCtx.conf.getOrElse(SHOW_STAGE_PROGRESS_KEY, "true").toBoolean
 
   override def onStageCompleted(stageCompleted: SparkListenerStageCompleted) {
+        super.onStageCompleted(stageCompleted)
 	if (showStageProgress) {
-      	    super.onStageCompleted(stageCompleted)
-  	…
+  	/* ..code ommited… */
   	   val progressMessage: Option[ProgressBarMessage] =  { /* …code omitted … */}
   	   progressMessage.foreach(logger.sendUIMessage)
 	}
