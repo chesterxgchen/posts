@@ -46,7 +46,7 @@ Handle Pig, Hive, MapReduce and Spark Jobs
 Handle database queries
 Process data pipeline workflow via Analytic Workflow Engine
 
-
+![Image of Agent](https://github.com/chesterxgchen/posts/blob/master/spark_integration/images/agent.png)
 
 
 ## Spark Integration -- Build scripts
