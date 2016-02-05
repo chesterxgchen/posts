@@ -519,11 +519,13 @@ I have described in great detail about the alpine Spark Integration approach. Ho
 We are continue to working on additional infrastructure related to Spark Integration:
  
 * Real-Time Machine Learning visualization with Spark
-   Enable one to visualize and monitor the machine training at each iteration. The intermediate training result is sent to front-end via    established communication channel and displayed as training in progress.
+  
+  This allows one to visualize and monitor the machine training at each iteration. The intermediate training result is sent to front-end via established communication channel and displayed as training in progress.
 * Interactive with running spark Job
+  
   The task channel actor can be created to take command to change the behavior of the spark job. For example, One can stop the macine   learning training iteration instead of waiting for the last iteration if user determine that the convergence is achieved.
  ( check out my presentations at 2016 IEEE International Conference on Big Data Analytics and other conferences )
 
-* Automatically estimate the Spark configuration parameters based on the yarn containers memory, vCores,  data size and machine learning algorithm. 
+* Automatically estimate the Spark configuration parameters based on the yarn containers memory, vCores, data size and machine learning algorithm. 
  
 
