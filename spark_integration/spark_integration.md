@@ -141,12 +141,6 @@ This is not ideal; we would like to monitor the job progress, logs, debugging st
 
 ![Image of Yarn Mode](https://github.com/chesterxgchen/posts/blob/master/spark_integration/images/spark-yarn-mode.png)
 
-
-
-
-
-
-
  
 ## Runtime Jar file dependencies
 
@@ -302,19 +296,16 @@ override def onApplicationStart(time: Long, info: YarnAppInfo) {
 Let’s look at the ```onApplicationStart()``` Callback:
 * We updated the SPARK_YARA_APP_ID, with the info.appId, this is the yarn application Id just created. With this Application Id, we can use it to kill Application
 * The job state is updated with the tracking URL
-* Further the StartTaskMessage() is send to the front-end via a MessagingUtil. 
+* Further the ```StartTaskMessage()``` is send to the front-end via a ```MessagingUtil```. 
  
 This allows the application to display Yarn Progress Bar before Spark Job is started.
 
  
   
  
- 
 ## Setup communication Channel
  
 We also need a way for the Spark job to communicate back to the application on the logging, exception, as well as Spark progress.  
-
-
 
 To do this, we setup a Spark Client Listener
  
@@ -323,7 +314,7 @@ SparkClientListener listens the messages sent back from Spark Job. The message i
 Before we submit the Spark job, we create a SparkClientListener Actor and send the Actor’s URL to Spark job as part of the arguments.  Here is the method to submit the Spark Job (omitting a few lines of code)
  
 One the client side:
-           	
+```
 def submitJob(conf: mutable.Map[String, String], hadoopConfig: Configuration) : Unit =  {
  try {
   	/* code omitted */
@@ -344,11 +335,12 @@ def submitJob(conf: mutable.Map[String, String], hadoopConfig: Configuration) : 
 	postRun(jobState)
   }
  
-  
+```  
 On the cluster
  
 All Spark job implements a SparkMain() method as we wrap the Spark job in the followings:
- 
+
+``` 
 abstract class AlpineSparkJob {
 
 def main(args: Array[String]) {
@@ -368,10 +360,11 @@ def main(args: Array[String]) {
 	finally {/* … */}
  
 }
- 
+
+``` 
  
 For all Spark jobs, we create an ApplicationContext, which contains the all the needed infrastructure to run the Spark Job.
-
+```
 class ApplicationContext(val conf: mutable.Map[String, String]) {
 
   val appName = conf.getOrElse(SPARK_APP_NAME, "Alpine Spark Job")
@@ -389,7 +382,7 @@ class ApplicationContext(val conf: mutable.Map[String, String]) {
  
    /*… rest of methods … */
 }
- 
+``` 
  
  
 First we create an Akka Actor System in the container so that it can be used to send and receive akka messages.  With this Akka Actor System, we created messenger, logger and JobProgressRelayListener. Note that SparkContext also contains an actor system, but it is deprecated and should be not used
@@ -407,7 +400,7 @@ With this infrastructure, we can do a lot of interesting communications from clu
 Let’s take a closer look at the type of messages we sending from cluster to client:
  
 ## Message Types
-
+```
 
 trait LogMessage {
   val time: Long
@@ -429,29 +422,30 @@ trait AppMessage {
   val key: String
   val value: Any //message needs to be serializable
 }
- 
+``` 
 The messages are divided into three categories: LogMessage, UIMessage, and AppMessage.   LogMessage will be used for logging, UIMessage will be used for display and AppMessage message to communicate to application.
  
 Here are the concrete messages corresponding to log Levels (Info, Warn, Debug and Error)
-
+```
 case class InfoMessage(message: String, name: String, time: Long = new Date().getTime) extends LogMessage
 case class WarnMessage(message: String, name: String, time: Long = new Date().getTime) extends LogMessage
 case class DebugMessage(message: String, name: String, time: Long = new Date().getTime) extends LogMessage
 case class ErrorMessage(message: String, name: String, cause: Throwable, time: Long = new Date().getTime) extends LogMessage
- 
+```
  
 Here are the concrete messages used for UI. ProgressBarMessage is used for display progress bar, DisplayMessage will just show text on the UI.
-
+```
 case class ProgressBarMessage(task: String, message: String, progressMessage: String, time: Long = new Date().getTime) extends UIMessage
 
 case class DisplayMessage(task: String, message: String, time: Long = new Date().getTime) extends UIMessage
- 
-Here is one UpdateMessage, where we use to update key,values of the application.
+```
 
+Here is one UpdateMessage, where we use to update key,values of the application.
+```
 case class UpdateMessage(name: String, key: String, value: Any) extends AppMessage
 
 case class BroadcastMessage(jobType: String, name: String, key: String, value: Any) extends AppMessage
-
+```
 The BroadcastMessage is used for send messages for all the Machine Learning Listeners, this will be discussed in a separate post. 
  
 
@@ -469,7 +463,8 @@ Spark Client Listener resides on the client side of the application (not in clus
 ## Displaying Spark Job Progress in Real-Time 
  
 With above infrastructure, now we are ready to display real-time Spark job progress and other detailed information to UI.  What we need to do is first get the Spark job progress via JobProgressListener and then relay the progress via our task communication channel to front-end.  Here we define a Spark JobProgressRelayListener extends JobProgressListener to do this work.
- 
+
+``` 
 class JobProgressRelayListener(appCtx: ApplicationContext)
 	extends JobProgressListener(appCtx.sparkCtx.getConf) with SparkListener {
 
@@ -502,14 +497,7 @@ class JobProgressRelayListener(appCtx: ApplicationContext)
    }
 
 }
- 
-
-
-
-
-
-
-
+``` 
 
 
 Now with this infrastructure in place, we can display in real-time, the Spark progress. 
