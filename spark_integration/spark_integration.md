@@ -525,7 +525,7 @@ We are continue to working on additional infrastructure related to Spark Integra
   This allows one to visualize and monitor the machine training at each iteration. The intermediate training result is sent to front-end via established communication channel and displayed as training in progress.
 * Interactive with running spark Job
   
-  The task channel actor can be created on driver, which will take external command to change the behavior of the spark job. For example, One can stop the macine learning training iteration instead of waiting for the last iteration if user determine that the convergence is achieved.
+  The task channel actor can be created on driver, which will take external command to change the behavior of the spark job. For example, one can stop the macine learning training iteration, accept the model trained so far, instead of waiting for the last iteration.
  ( check out my presentations at 2016 IEEE International Conference on Big Data Analytics and other conferences )
 
 * Automatically estimate the Spark configuration parameters based on the yarn containers memory, vCores, data size and machine learning algorithm. 
