@@ -1,11 +1,11 @@
 # Predictive Analytics Platform Spark Integration
 
  
-Chester Chen
+##### Chester Chen
 
-Alpine Data
+##### Alpine Data
 
-Tuesday, November 3, 2015
+##### November 3, 2015
  
  
 In this blog, I will discuss how to integrate Apache Spark in a web-based analytics system. Part of the content is discussed in my recent talk at [2015 Big Data Scala Conference](https://www.youtube.com/watch?v=4pTmhmcLWRg). 
