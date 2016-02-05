@@ -454,9 +454,9 @@ The BroadcastMessage is used for send messages for all the Machine Learning List
  
 Spark Client Listener resides on the client side of the application (not in cluster) and it is used for receiving messages from the Spark job. Once the message is received, it redirect to different destination based on the type of the messages:
  
-·      LogMessages => Log4J to log
-·      UIMessage => send to message queue for Websocket to pick and update UI, displaying real-time progress and errors
-·      AppMessages => directly update application states, counters or broadcast the message to part of the application. 
+* LogMessages => Log4J to log
+* UIMessage => send to message queue for Websocket to pick and update UI, displaying real-time progress and errors
+* AppMessages => directly update application states, counters or broadcast the message to part of the application. 
  
 
  
